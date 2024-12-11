@@ -1,1 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Campus Faculty Location Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Campus Faculty Location Tracker</h1>
+        <button onclick="openAddFacultyModal()">Add New Faculty</button>
+    </div>
 
+    <div id="facultyList"></div>
+
+    <!-- Add Faculty Modal -->
+    <div id="addFacultyModal" class="faculty-card hidden">
+        <h2>Add New Faculty Member</h2>
+        <form class="edit-form" id="addFacultyForm">
+            <label>Name:
+                <input type="text" name="name" required>
+            </label>
+            <label>Department:
+                <input type="text" name="department" required>
+            </label>
+            <label>Office Location:
+                <input type="text" name="officeLocation" required>
+            </label>
+            <h3>Timetable</h3>
+            <div id="timetableInputs">
+                <div class="timetable-row">
+                    <select name="day">
+                        <option>Monday</option>
+                        <option>Tuesday</option>
+                        <option>Wednesday</option>
+                        <option>Thursday</option>
+                        <option>Friday</option>
+                    </select>
+                    <input type="time" name="startTime" required>
+                    <input type="time" name="endTime" required>
+                    <input type="text" name="location" placeholder="Room/Location" required>
+                    <input type="text" name="activity" placeholder="Activity" required>
+                </div>
+            </div>
+            <button type="button" onclick="addTimetableRow()">Add Timetable Row</button>
+            <div class="edit-buttons">
+                <button type="button" onclick="saveFaculty()">Save</button>
+                <button type="button" onclick="closeAddFacultyModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
