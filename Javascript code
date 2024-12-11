@@ -1,0 +1,212 @@
+// Initial faculty data
+let facultyData = [
+    {
+        name: "Dr. Emily Rodriguez",
+        department: "Computer Science",
+        officeLocation: "Science Building, Room 305",
+        timetable: [
+            { day: "Monday", startTime: "09:00", endTime: "11:00", location: "Room 205", activity: "Algorithms Class" },
+            { day: "Tuesday", startTime: "14:00", endTime: "16:00", location: "Room 305", activity: "Research Meeting" },
+            { day: "Wednesday", startTime: "10:00", endTime: "12:00", location: "Science Lab", activity: "Research Work" }
+        ]
+    },
+    {
+        name: "Prof. Michael Chen",
+        department: "Mathematics",
+        officeLocation: "Mathematics Building, Room 412",
+        timetable: [
+            { day: "Monday", startTime: "13:00", endTime: "15:00", location: "Room 210", activity: "Linear Algebra" },
+            { day: "Thursday", startTime: "09:00", endTime: "11:00", location: "Room 412", activity: "Office Hours" },
+            { day: "Friday", startTime: "14:00", endTime: "16:00", location: "Conference Room", activity: "Research Seminar" }
+        ]
+    }
+];
+
+// Render faculty list
+function renderFacultyList() {
+    const facultyList = document.getElementById('facultyList');
+    facultyList.innerHTML = '';
+
+    facultyData.forEach((faculty, index) => {
+        const facultyCard = document.createElement('div');
+        facultyCard.className = 'faculty-card';
+        facultyCard.innerHTML = `
+            <div class="faculty-header">
+                <h2>${faculty.name}</h2>
+                <div class="edit-buttons">
+                    <button onclick="editFaculty(${index})">Edit</button>
+                    <button onclick="deleteFaculty(${index})">Delete</button>
+                </div>
+            </div>
+            <p><strong>Department:</strong> ${faculty.department}</p>
+            <p><strong>Office Location:</strong> ${faculty.officeLocation}</p>
+            
+            <table class="timetable">
+                <thead>
+                    <tr>
+                        <th>Day</th>
+                        <th>Time</th>
+                        <th>Location</th>
+                        <th>Activity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${faculty.timetable.map(entry => `
+                        <tr>
+                            <td>${entry.day}</td>
+                            <td>${entry.startTime} - ${entry.endTime}</td>
+                            <td>${entry.location}</td>
+                            <td>${entry.activity}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+        facultyList.appendChild(facultyCard);
+    });
+}
+
+// Open add faculty modal
+function openAddFacultyModal() {
+    document.getElementById('addFacultyModal').classList.remove('hidden');
+    document.getElementById('addFacultyForm').reset();
+}
+
+// Close add faculty modal
+function closeAddFacultyModal() {
+    document.getElementById('addFacultyModal').classList.add('hidden');
+}
+
+// Add timetable row dynamically
+function addTimetableRow() {
+    const container = document.getElementById('timetableInputs');
+    const newRow = document.createElement('div');
+    newRow.className = 'timetable-row';
+    newRow.innerHTML = `
+        <select name="day">
+            <option>Monday</option>
+            <option>Tuesday</option>
+            <option>Wednesday</option>
+            <option>Thursday</option>
+            <option>Friday</option>
+        </select>
+        <input type="time" name="startTime" required>
+        <input type="time" name="endTime" required>
+        <input type="text" name="location" placeholder="Room/Location" required>
+        <input type="text" name="activity" placeholder="Activity" required>
+        <button type="button" onclick="this.parentElement.remove()">Remove</button>
+    `;
+    container.appendChild(newRow);
+}
+
+// Save new faculty
+function saveFaculty() {
+    const form = document.getElementById('addFacultyForm');
+    const formData = new FormData(form);
+    
+    const newFaculty = {
+        name: formData.get('name'),
+        department: formData.get('department'),
+        officeLocation: formData.get('officeLocation'),
+        timetable: []
+    };
+
+    // Collect timetable entries
+    const timetableRows = document.querySelectorAll('#timetableInputs .timetable-row');
+    timetableRows.forEach(row => {
+        newFaculty.timetable.push({
+            day: row.querySelector('select[name="day"]').value,
+            startTime: row.querySelector('input[name="startTime"]').value,
+            endTime: row.querySelector('input[name="endTime"]').value,
+            location: row.querySelector('input[name="location"]').value,
+            activity: row.querySelector('input[name="activity"]').value
+        });
+    });
+
+    facultyData.push(newFaculty);
+    renderFacultyList();
+    closeAddFacultyModal();
+}
+
+// Edit faculty
+function editFaculty(index) {
+    const faculty = facultyData[index];
+    
+    // Populate modal with existing data
+    openAddFacultyModal();
+    const form = document.getElementById('addFacultyForm');
+    form.querySelector('input[name="name"]').value = faculty.name;
+    form.querySelector('input[name="department"]').value = faculty.department;
+    form.querySelector('input[name="officeLocation"]').value = faculty.officeLocation;
+
+    // Clear existing timetable rows
+    const timetableContainer = document.getElementById('timetableInputs');
+    timetableContainer.innerHTML = '';
+
+    // Add existing timetable rows
+    faculty.timetable.forEach(entry => {
+        const newRow = document.createElement('div');
+        newRow.className = 'timetable-row';
+        newRow.innerHTML = `
+            <select name="day">
+                <option ${entry.day === 'Monday' ? 'selected' : ''}>Monday</option>
+                <option ${entry.day === 'Tuesday' ? 'selected' : ''}>Tuesday</option>
+                <option ${entry.day === 'Wednesday' ? 'selected' : ''}>Wednesday</option>
+                <option ${entry.day === 'Thursday' ? 'selected' : ''}>Thursday</option>
+                <option ${entry.day === 'Friday' ? 'selected' : ''}>Friday</option>
+            </select>
+            <input type="time" name="startTime" value="${entry.startTime}" required>
+            <input type="time" name="endTime" value="${entry.endTime}" required>
+            <input type="text" name="location" placeholder="Room/Location" value="${entry.location}" required>
+            <input type="text" name="activity" placeholder="Activity" value="${entry.activity}" required>
+            <button type="button" onclick="this.parentElement.remove()">Remove</button>
+        `;
+        timetableContainer.appendChild(newRow);
+    });
+
+    // Modify save button to update existing faculty
+    const saveButton = form.querySelector('button[type="button"][onclick="saveFaculty()"]');
+    saveButton.textContent = 'Update';
+    saveButton.onclick = () => updateFaculty(index);
+}
+
+// Update existing faculty
+function updateFaculty(index) {
+    const form = document.getElementById('addFacultyForm');
+    const formData = new FormData(form);
+    
+    const updatedFaculty = {
+        name: formData.get('name'),
+        department: formData.get('department'),
+        officeLocation: formData.get('officeLocation'),
+        timetable: []
+    };
+
+    // Collect timetable entries
+    const timetableRows = document.querySelectorAll('#timetableInputs .timetable-row');
+    timetableRows.forEach(row => {
+        updatedFaculty.timetable.push({
+            day: row.querySelector('select[name="day"]').value,
+            startTime: row.querySelector('input[name="startTime"]').value,
+            endTime: row.querySelector('input[name="endTime"]').value,
+            location: row.querySelector('input[name="location"]').value,
+            activity: row.querySelector('input[name="activity"]').value
+        });
+    });
+
+    // Replace faculty at given index
+    facultyData[index] = updatedFaculty;
+    renderFacultyList();
+    closeAddFacultyModal();
+}
+
+// Delete faculty
+function deleteFaculty(index) {
+    if(confirm(`Are you sure you want to delete ${facultyData[index].name}?`)) {
+        facultyData.splice(index, 1);
+        renderFacultyList();
+    }
+}
+
+// Initial render
+renderFacultyList();
